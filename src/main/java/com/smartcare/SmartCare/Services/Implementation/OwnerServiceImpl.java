@@ -67,6 +67,7 @@ public class OwnerServiceImpl implements OwnerServices {
         return HashKeyForNgoLocation;
     }
 
+    //storing aadhar card for privacy purpose
     @Override
     public Boolean saveAadharCardToLocalStorage(MultipartFile file, String ngoId) throws IOException {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -86,8 +87,10 @@ public class OwnerServiceImpl implements OwnerServices {
         Owner owner = ownerRepo.save(OwnerHelper.convertIntoOwner(ownerDTO, new Owner()));
         redisTemplate.opsForHash().put(HashKeyForOwner, owner.getOwnerId(), RedisOwnerHelper.convertIntoRedisOwner(new RedisOwner(), owner));
         log.info("saved to owner to db, ngo id is : " + ownerDTO.getNgoId());
+        //longitude and latitude has used for getting nearest ngo from user location
         double longitude = Double.parseDouble(ownerDTO.getLongitude());
         double latitude = Double.parseDouble(ownerDTO.getLatitude());
+
         jedis.geoadd(HashKeyForNgoLocation, longitude, latitude, ownerDTO.getNgoId());
         log.info("ngo info saved to redis longitude : " + ownerDTO.getLongitude() + " latitude : " + ownerDTO.getLatitude());
         return owner;
@@ -144,6 +147,8 @@ public class OwnerServiceImpl implements OwnerServices {
 
     @Override
     public List<Map<String, Object>> findAllActiveMembers(String ngoId) {
+
+        //this helps to fetch the all online agent who is ready give services to people
         Map<String,Object> countActiveMember = new HashMap<>();
         countActiveMember.put("Active Members ",activeAgentRepo.totalActiveNgoMembers(ngoId));
 
@@ -158,7 +163,7 @@ public class OwnerServiceImpl implements OwnerServices {
 
         return response;
     }
-
+    // getting the aadhar card from device
     @Override
     public Resource viewAadharCard(String ngoId) throws MalformedURLException, FileNotFoundException {
         Path filePath = Paths.get(pathToSavedAadharCard).resolve(ngoId);

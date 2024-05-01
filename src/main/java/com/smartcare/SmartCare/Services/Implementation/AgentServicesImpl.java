@@ -83,16 +83,20 @@ public class AgentServicesImpl implements AgentServices {
     }
     @Override
     public Boolean logIn(String username,String password,String ngoId){
-        if(agentRepo.existsByagentId(username)){
-            if((agentRepo.getPassByAgentId(username).equals(password)) ) {
+        if(agentRepo.existsByagentId(username)){  //checks whether the agents exist or not
+            if((agentRepo.getPassByAgentId(username).equals(password)) ) { //checking given password with stored password
                 try{
                     String agentStatus = activeAgentRepo.getStatus(username);
-                    if (agentStatus.equals("DEACTIVE")) {
+                    if (agentStatus.equals("DEACTIVE")) { // find whether agent has already logged in or not and it means that agent is new
+
+                        //storing logging details
                         AgentLogInHistory agentLogInHistory = new AgentLogInHistory();
                         agentLogInHistory.setDateTime(new Date());
                         agentLogInHistory.setNgoId(ngoId);
                         agentLogInHistory.setAgentId(username);
                         agentLogInHistoryRepo.save(agentLogInHistory);
+
+                        // stored agent information to sent request all online agent
                         ActiveAgents activeAgents = new ActiveAgents();
                         activeAgents.setStatus("ACTIVE");
                         activeAgents.setNgoId(ngoId);
@@ -102,6 +106,8 @@ public class AgentServicesImpl implements AgentServices {
                     }
                 }
                 catch (Exception e){
+
+                    //same as previous but only for whose status is DEACTIVE
                     AgentLogInHistory agentLogInHistory = new AgentLogInHistory();
                     agentLogInHistory.setDateTime(new Date());
                     agentLogInHistory.setNgoId(ngoId);

@@ -33,9 +33,9 @@ public class RequestControllers {
         return new ResponseEntity<>(requestServices.viewRequestByCustId(id),HttpStatus.FOUND);
     }
 
-    @PostMapping("/done/{id}/{pin}")
-    public ResponseEntity<Object> completeRequest(@PathVariable String id,@PathVariable String pin){
-        return new ResponseEntity<>(requestServices.markedRequestAsClosed(id,pin),HttpStatus.OK);
+    @PostMapping("/done/{id}")
+    public ResponseEntity<Object> completeRequest(@PathVariable String id){
+        return new ResponseEntity<>(requestServices.markedRequestAsClosed(id),HttpStatus.OK);
     }
 
     @GetMapping("/all/{type}/{id}")
